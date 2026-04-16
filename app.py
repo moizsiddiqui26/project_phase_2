@@ -22,12 +22,7 @@ from db.database import init_db
 init_db()
 
 # AUTH SERVICES
-from auth.auth_service import (
-    login_user,
-    register_user,
-    generate_login_otp,
-    verify_otp
-)
+from auth.auth_service import login_user
 
 try:
     from services.crypto_api import get_top_10_prices
