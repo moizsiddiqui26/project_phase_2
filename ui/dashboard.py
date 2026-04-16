@@ -14,7 +14,7 @@ from services.forecast_engine import get_forecast_summary
 
 # DB
 from db.models import add_holding, get_holdings
-
+st.write(df.head())
 # UI Components
 from ui.components import top_nav, section, metric_row
 
