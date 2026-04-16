@@ -32,11 +32,11 @@ try:
     sys.path.append(os.getcwd())
 
 # NOW IMPORT
-    from .services.crypto_api import get_top_10_prices
+    from services.crypto_api import get_top_10_prices
 except ModuleNotFoundError:
     import sys, os
     sys.path.append(os.getcwd())
-    from .services.crypto_api import get_top_10_prices
+    from services.crypto_api import get_top_10_prices
     
 # UI COMPONENTS
 from ui.components import render_header, render_ticker
