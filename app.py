@@ -25,6 +25,13 @@ init_db()
 from auth.auth_service import login_user
 
 try:
+    import sys
+    import os
+
+# FORCE ROOT PATH
+    sys.path.append(os.getcwd())
+
+# NOW IMPORT
     from services.crypto_api import get_top_10_prices
 except ModuleNotFoundError:
     import sys, os
