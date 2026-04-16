@@ -18,7 +18,7 @@ import streamlit as st
 import time
 
 # DB INIT
-from .db.database import init_db
+from db.database import init_db
 init_db()
 
 # AUTH SERVICES
