@@ -3,6 +3,9 @@ import os
 
 # Ensure project root is in path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import os
+st.write("Files:", os.listdir())
+st.write("Services:", os.listdir("services"))
 import streamlit as st
 import time
 
