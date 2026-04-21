@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import os, importlib.util
 
@@ -9,12 +10,14 @@ def load_module(name, path):
     spec.loader.exec_module(module)
     return module
 
+# LOAD
 crypto_api = load_module("crypto_api", os.path.join(BASE_DIR, "services", "crypto_api.py"))
 auth_service = load_module("auth_service", os.path.join(BASE_DIR, "auth", "auth_service.py"))
 ui = load_module("components", os.path.join(BASE_DIR, "ui", "components.py"))
 
 get_prices = crypto_api.get_top_10_prices
 login_user = auth_service.login_user
+register_user = auth_service.register_user
 
 render_header = ui.render_header
 render_ticker = ui.render_ticker
@@ -25,19 +28,12 @@ st.set_page_config(layout="wide")
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+if "mode" not in st.session_state:
+    st.session_state.mode = "login"
 
-# =========================
-# CACHE PRICES (IMPORTANT)
-# =========================
-@st.cache_data(ttl=60)
-def get_cached_prices():
-    return get_prices()
-
-
-# =========================
-# LOGIN UI
-# =========================
+# ================= LOGIN UI =================
 def login_ui():
+
     st.markdown("## 🚀 Crypto SaaS")
 
     email = st.text_input("Email")
@@ -50,15 +46,15 @@ def login_ui():
             st.session_state.email = email
             st.rerun()
 
+    if st.button("Register"):
+        st.session_state.mode = "register"
 
-# =========================
-# MAIN APP
-# =========================
+# ================= MAIN APP =================
 def main_app():
 
     render_header(st.session_state.email)
 
-    prices = get_cached_prices()
+    prices = get_prices()
     render_ticker(prices)
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
@@ -66,12 +62,9 @@ def main_app():
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
 
-
-# =========================
-# ROUTING
-# =========================
+# ================= ROUTING =================
 if not st.session_state.auth:
     login_ui()
 else:
     main_app()
-
+```
