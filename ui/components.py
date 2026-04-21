@@ -5,41 +5,81 @@ import streamlit as st
 # =========================
 def render_header(user):
 
+    import streamlit as st
+
     st.markdown(f"""
     <style>
-    .header {{
+    .navbar {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 999;
         background: linear-gradient(90deg, #0f0c29, #302b63);
         padding: 15px 40px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        z-index: 999;
         box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
     }}
 
     .logo {{
-        font-size: 24px;
+        font-size: 22px;
         font-weight: bold;
         color: #00f5ff;
     }}
 
-    .user {{
+    .nav {{
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }}
+
+    .nav-item {{
         color: white;
         font-size: 14px;
+        cursor: pointer;
+    }}
+
+    .nav-item:hover {{
+        color: #00f5ff;
+    }}
+
+    .right {{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }}
+
+    .logout {{
+        background: #1e1e2f;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        color: white;
+        cursor: pointer;
     }}
 
     .spacer {{
-        margin-top: 90px;
+        height: 80px;
     }}
     </style>
 
-    <div class="header">
+    <div class="navbar">
         <div class="logo">🚀 Crypto SaaS</div>
-        <div class="user">👤 {user}</div>
+
+        <div class="nav">
+            <div class="nav-item">📊 Dashboard</div>
+            <div class="nav-item">💰 Investment</div>
+            <div class="nav-item">⚠ Risk</div>
+            <div class="nav-item">🔮 Forecast</div>
+            <div class="nav-item">👤 Portfolio</div>
+        </div>
+
+        <div class="right">
+            <div>👤 {user}</div>
+            <div class="logout">Logout</div>
+        </div>
     </div>
 
     <div class="spacer"></div>
