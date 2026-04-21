@@ -37,17 +37,47 @@ st.set_page_config(page_title="🚀 Crypto SaaS", layout="wide")
 
 st.markdown("""
 <style>
-#MainMenu {visibility:hidden;}
-footer {visibility:hidden;}
-header {visibility:hidden;}
+
+/* App Background */
 .stApp {
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    color: white;
 }
+
+/* Cards */
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Glow text */
+.glow {
+    color: #00f5ff;
+}
+
+/* Inputs */
+input, .stNumberInput, .stSelectbox {
+    border-radius: 10px !important;
+}
+
+/* Buttons */
+.stButton>button {
+    border-radius: 10px;
+    background: #00f5ff;
+    color: black;
+    font-weight: bold;
+}
+
 </style>
 """, unsafe_allow_html=True)
-
-
 # =========================
 # SESSION STATE
 # =========================
