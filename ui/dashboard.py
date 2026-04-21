@@ -50,7 +50,8 @@ def main():
     if page == "📊 Dashboard":
 
         st.markdown("## 📊 Market Overview")
-        coin = st.selectbox("Select Coin", df["Crypto"].unique())
+        coins = st.selectbox("Select Coin", df["Crypto"].unique())
+
 
         f = df[df["Crypto"].isin(coins)].copy()
 
