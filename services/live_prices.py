@@ -1,4 +1,5 @@
 import requests
+from concurrent.futures import ThreadPoolExecutor
 
 SYMBOL_MAP = {
     "BTC": "BTCUSDT",
@@ -12,21 +13,41 @@ SYMBOL_MAP = {
     "MATIC": "MATICUSDT"
 }
 
-def get_live_prices():
+BASE_URL = "https://api.binance.com/api/v3/ticker/price"
+
+
+# =========================
+# SINGLE FETCH
+# =========================
+def fetch_price(symbol):
     try:
-        prices = {}
-
-        # ✅ Fetch only required coins (FAST)
-        for name, symbol in SYMBOL_MAP.items():
-
-            url = f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}"
-            res = requests.get(url, timeout=2)
-
-            if res.status_code == 200:
-                data = res.json()
-                prices[name] = float(data["price"])
-
-        return prices
-
+        res = requests.get(f"{BASE_URL}?symbol={symbol}", timeout=2)
+        if res.status_code == 200:
+            data = res.json()
+            return float(data["price"])
     except:
-        return {}
+        return None
+
+
+# =========================
+# PARALLEL FETCH (FAST ⚡)
+# =========================
+def get_live_prices():
+
+    prices = {}
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+
+        futures = {
+            executor.submit(fetch_price, sym): name
+            for name, sym in SYMBOL_MAP.items()
+        }
+
+        for future in futures:
+            name = futures[future]
+            price = future.result()
+
+            if price is not None:
+                prices[name] = price
+
+    return prices
