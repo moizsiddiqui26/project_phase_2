@@ -1,3 +1,6 @@
+# =========================
+# SAFE MODULE LOADER
+# =========================
 import os
 import importlib.util
 
@@ -91,14 +94,23 @@ if "temp_email" not in st.session_state:
 
 
 # =========================
-# HEADERS
+# PUBLIC HEADER (LOGIN PAGE)
 # =========================
 def render_public_header():
-    st.markdown("## 🚀 Welcome to Crypto SaaS")
-    prices = get_top_10_prices()
-    render_ticker(prices)
+    st.markdown("""
+    <div style="
+        text-align:center;
+        padding:40px 0 10px 0;
+    ">
+        <h1 style="color:#00f5ff;">🚀 Crypto SaaS</h1>
+        <p style="color:gray;">Smart Crypto Analytics Platform</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
+# =========================
+# PRIVATE HEADER (APP)
+# =========================
 def render_private_header():
     user = st.session_state.get("email", "Guest")
     render_header(user)
@@ -108,24 +120,36 @@ def render_private_header():
 
 
 # =========================
-# AUTH UI
+# AUTH UI (UPGRADED)
 # =========================
 def login_ui():
 
     render_public_header()
 
-    # ================= LOGIN =================
-    if st.session_state.mode == "login":
+    col1, col2, col3 = st.columns([2,4,2])
 
-        st.subheader("🔐 Login")
+    with col2:
 
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
+        st.markdown("""
+        <div style="
+            background: rgba(255,255,255,0.05);
+            padding:30px;
+            border-radius:15px;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.4);
+        ">
+        """, unsafe_allow_html=True)
 
-        col1, col2, col3 = st.columns(3)
+        # LOGIN
+        if st.session_state.mode == "login":
 
-        with col1:
-            if st.button("Login"):
+            st.markdown("### 🔐 Login")
+
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if st.button("🚀 Login", use_container_width=True):
                 res = login_user(email, password)
 
                 if res["success"]:
@@ -136,69 +160,75 @@ def login_ui():
                 else:
                     st.error(res["msg"])
 
-        with col2:
-            if st.button("Register"):
-                st.session_state.mode = "register"
+            colA, colB = st.columns(2)
 
-        with col3:
-            if st.button("OTP Login"):
-                st.session_state.mode = "otp"
+            with colA:
+                if st.button("📝 Register"):
+                    st.session_state.mode = "register"
 
-    # ================= REGISTER =================
-    elif st.session_state.mode == "register":
+            with colB:
+                if st.button("🔑 OTP Login"):
+                    st.session_state.mode = "otp"
 
-        st.subheader("📝 Register")
+        # REGISTER
+        elif st.session_state.mode == "register":
 
-        name = st.text_input("Name")
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
+            st.markdown("### 📝 Create Account")
 
-        if st.button("Create Account"):
-            res = register_user(name, email, password)
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
 
-            if res["success"]:
-                send_welcome_email(email)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-                # ✅ AUTO LOGIN AFTER REGISTER
-                st.session_state.auth = True
-                st.session_state.email = email
+            if st.button("✅ Create Account", use_container_width=True):
+                res = register_user(name, email, password)
 
-                st.success("Account created & logged in successfully 🚀")
-                st.rerun()
-            else:
-                st.error(res["msg"])
+                if res["success"]:
+                    send_welcome_email(email)
 
-        if st.button("Back"):
-            st.session_state.mode = "login"
+                    # AUTO LOGIN
+                    st.session_state.auth = True
+                    st.session_state.email = email
 
-    # ================= OTP LOGIN =================
-    elif st.session_state.mode == "otp":
+                    st.success("Account created & logged in 🚀")
+                    st.rerun()
+                else:
+                    st.error(res["msg"])
 
-        st.subheader("🔐 OTP Login")
+            if st.button("⬅ Back"):
+                st.session_state.mode = "login"
 
-        email = st.text_input("Email")
+        # OTP LOGIN
+        elif st.session_state.mode == "otp":
 
-        if st.button("Send OTP"):
-            otp = generate_login_otp()
-            st.session_state.otp = otp
-            st.session_state.temp_email = email
+            st.markdown("### 🔐 OTP Login")
 
-            send_otp_email(email, otp)
-            st.success("OTP sent")
+            email = st.text_input("Email")
 
-        otp_input = st.text_input("Enter OTP")
+            if st.button("Send OTP"):
+                otp = generate_login_otp()
+                st.session_state.otp = otp
+                st.session_state.temp_email = email
 
-        if st.button("Verify OTP"):
-            if verify_otp(otp_input, st.session_state.otp):
-                st.session_state.auth = True
-                st.session_state.email = st.session_state.temp_email
-                st.success("Login successful")
-                st.rerun()
-            else:
-                st.error("Invalid OTP")
+                send_otp_email(email, otp)
+                st.success("OTP sent")
 
-        if st.button("Back"):
-            st.session_state.mode = "login"
+            otp_input = st.text_input("Enter OTP")
+
+            if st.button("Verify OTP"):
+                if verify_otp(otp_input, st.session_state.otp):
+                    st.session_state.auth = True
+                    st.session_state.email = st.session_state.temp_email
+                    st.success("Login successful")
+                    st.rerun()
+                else:
+                    st.error("Invalid OTP")
+
+            if st.button("⬅ Back"):
+                st.session_state.mode = "login"
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # =========================
