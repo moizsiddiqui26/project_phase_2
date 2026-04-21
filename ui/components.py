@@ -129,32 +129,43 @@ def render_ticker(prices):
 
     coins = list(prices.items())
 
-    # ✅ GRID: 5 per row
-    for i in range(0, len(coins), 5):
-        row = coins[i:i+5]
-        cols = st.columns(len(row))
+    # ✅ FIXED GRID: 4 per row (best balance)
+    cols_per_row = 4
 
-        for col, (coin, data) in zip(cols, row):
-            symbol = symbol_map.get(coin, coin.upper())
-            price = list(data.values())[0]
+    for i in range(0, len(coins), cols_per_row):
+        row = coins[i:i + cols_per_row]
+        cols = st.columns(cols_per_row)
 
-            col.markdown(f"""
-            <div style="
-                background: #1e1e2f;
-                padding: 12px;
-                border-radius: 10px;
-                text-align: center;
-                box-shadow: 0px 3px 8px rgba(0,0,0,0.3);
-            ">
-                <div style="color:gray;font-size:12px;">{symbol}</div>
-                <div style="font-size:16px;font-weight:bold;color:#00ffcc;">
-                    ${price}
+        for j in range(cols_per_row):
+            if j < len(row):
+                coin, data = row[j]
+                symbol = symbol_map.get(coin, coin.upper())
+                price = list(data.values())[0]
+
+                cols[j].markdown(f"""
+                <div style="
+                    background: rgba(255,255,255,0.05);
+                    padding: 18px;
+                    border-radius: 14px;
+                    text-align: center;
+                    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+                    transition: 0.3s;
+                ">
+                    <div style="color:gray;font-size:12px;">
+                        {symbol}
+                    </div>
+                    <div style="
+                        font-size:20px;
+                        font-weight:bold;
+                        color:#00ffcc;
+                    ">
+                        ${price}
+                    </div>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
-    # ✅ SMALL spacing (not huge)
-    st.markdown("<div style='height:15px'></div>", unsafe_allow_html=True)
+        # ✅ proper spacing between rows
+        st.markdown("<div style='height:15px'></div>", unsafe_allow_html=True)
 # =========================
 # CARD COMPONENT
 # =========================
