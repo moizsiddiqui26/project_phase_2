@@ -83,22 +83,6 @@ def main():
             return
 
         # 🔥 METRICS CARDS
-        latest = f.groupby("Crypto").last().reset_index()
-
-        cols = st.columns(len(latest))
-
-        for i, row in latest.iterrows():
-            price = round(row["Close"], 2)
-            cols[i].markdown(f"""
-            <div class="small-card">
-                <div style="color:gray;">{row['Crypto']}</div>
-                <div style="font-size:20px;font-weight:bold;color:#00ffcc;">
-                    ${price}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
 
         # 📈 PRICE TREND
         fig1 = px.line(
