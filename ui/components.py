@@ -43,37 +43,34 @@ def render_header(user):
     </div>
 
     <div class="spacer"></div>
-    """, unsafe_allow_html=True)# =========================
+    """, unsafe_allow_html=True)
+# =========================
 # LIVE TICKER
 # =========================
-def render_ticker(prices: dict):
+def render_ticker(prices):
 
-    if not prices:
-        return
+    st.markdown("### 💰 Live Market Prices")
 
-    ticker_html = """
-    <div style="
-    display:flex;
-    gap:25px;
-    padding:10px;
-    background:rgba(255,255,255,0.05);
-    border-radius:10px;
-    margin-bottom:15px;
-    overflow-x:auto;
-    ">
-    """
+    cols = st.columns(len(prices))
 
-    for coin, val in prices.items():
-        try:
-            ticker_html += f"<div>💰 {coin.upper()}: ${val['usd']}</div>"
-        except:
-            continue
+    for i, (coin, data) in enumerate(prices.items()):
 
-    ticker_html += "</div>"
+        price = list(data.values())[0]
 
-    st.markdown(ticker_html, unsafe_allow_html=True)
-
-
+        cols[i].markdown(f"""
+        <div style="
+            background: #1e1e2f;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 14px; color: #aaa;">{coin.upper()}</div>
+            <div style="font-size: 18px; font-weight: bold; color: #00ffcc;">
+                ${price}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 # =========================
 # CARD COMPONENT
 # =========================
