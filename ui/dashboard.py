@@ -15,31 +15,7 @@ from db.models import add_holding, get_holdings
 # =========================
 # GLOBAL UI STYLE
 # =========================
-st.markdown("""
-<style>
-.section-title {
-    font-size: 26px;
-    font-weight: 600;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.card {
-    background: rgba(255,255,255,0.06);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
-}
-
-.small-card {
-    background: rgba(255,255,255,0.08);
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-}
-</style>
-""", unsafe_allow_html=True)
-
+st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
 # =========================
 # LOAD DATA
