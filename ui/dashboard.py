@@ -127,15 +127,25 @@ def main():
 
         m = returns.merge(vol, on="Crypto")
 
+        # Ensure no negative scores
+        m["Return"] = m["Return"].clip(lower=0)
+
         if risk == "Low":
-            m["Score"] = 1 / m["Vol"]
+            m["Score"] = 1 / (m["Vol"] + 1e-6)
+
         elif risk == "Medium":
-            m["Score"] = m["Return"] / m["Vol"]
+            m["Score"] = m["Return"] / (m["Vol"] + 1e-6)
+
         else:
             m["Score"] = m["Return"]
 
+        # Remove zero scores
+        m = m[m["Score"] > 0]
+
+        # Normalize safely
         m["Allocation %"] = m["Score"] / m["Score"].sum() * 100
         m["Investment"] = m["Allocation %"] / 100 * amount
+
 
         st.dataframe(m, use_container_width=True)
 
