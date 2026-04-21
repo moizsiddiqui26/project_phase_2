@@ -1,7 +1,3 @@
-```python
-# =========================
-# SAFE MODULE LOADER
-# =========================
 import os
 import importlib.util
 
@@ -223,4 +219,3 @@ if not st.session_state.auth:
     login_ui()
 else:
     main_app()
-```
