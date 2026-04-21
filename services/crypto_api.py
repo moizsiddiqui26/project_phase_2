@@ -2,9 +2,6 @@ import requests
 import pandas as pd
 import time
 
-# =========================
-# TOP 10 CRYPTO LIST
-# =========================
 TOP_10_COINS = {
     "BTC": "bitcoin",
     "ETH": "ethereum",
@@ -22,53 +19,44 @@ BASE_URL = "https://api.coingecko.com/api/v3"
 
 
 # =========================
-# 🔥 GET LIVE PRICES (FIXED)
+# LIVE PRICES
 # =========================
 def get_top_10_prices():
-    """
-    Returns live prices for top 10 coins
-    """
     try:
         ids = ",".join(TOP_10_COINS.values())
 
-        response = requests.get(
+        res = requests.get(
             f"{BASE_URL}/simple/price",
             params={"ids": ids, "vs_currencies": "usd"},
             timeout=10
         )
 
-        if response.status_code != 200:
-            print("API Error:", response.status_code)
-            return {}
+        return res.json()
 
-        return response.json()
-
-    except Exception as e:
-        print("Error fetching prices:", e)
+    except:
         return {}
 
 
 # =========================
-# HISTORICAL DATA
+# HISTORICAL DATA (CRITICAL FIX)
 # =========================
-def get_historical_data(days=120):
-    """
-    Fetch historical data for all coins
-    """
+def get_historical_data(days=90):
+
     all_data = []
 
     for symbol, coin_id in TOP_10_COINS.items():
+
         try:
-            response = requests.get(
+            res = requests.get(
                 f"{BASE_URL}/coins/{coin_id}/market_chart",
                 params={"vs_currency": "usd", "days": days},
                 timeout=10
             )
 
-            if response.status_code != 200:
+            if res.status_code != 200:
                 continue
 
-            data = response.json()
+            data = res.json()
 
             if "prices" not in data:
                 continue
@@ -83,40 +71,9 @@ def get_historical_data(days=120):
 
         except Exception as e:
             print("Error:", e)
-            continue
 
+    # 🔥 THIS IS THE FIX (NOT INSIDE LOOP)
     if not all_data:
-        return pd.DataFrame(columns=["Date", "Crypto", "Close"])
-
-    return pd.concat(all_data)
-
-
-# =========================
-# SINGLE COIN DATA
-# =========================
-def get_coin_data(symbol, days=120):
-    """
-    Fetch data for one coin
-    """
-    coin_id = TOP_10_COINS.get(symbol)
-
-    if not coin_id:
         return pd.DataFrame()
 
-    try:
-        response = requests.get(
-            f"{BASE_URL}/coins/{coin_id}/market_chart",
-            params={"vs_currency": "usd", "days": days},
-            timeout=10
-        )
-
-        data = response.json()
-
-        df = pd.DataFrame(data["prices"], columns=["timestamp", "Close"])
-        df["Date"] = pd.to_datetime(df["timestamp"], unit="ms")
-
-        return df[["Date", "Close"]]
-
-    except Exception as e:
-        print("Error:", e)
-        return pd.DataFrame()
+    return pd.concat(all_data, ignore_index=True)
