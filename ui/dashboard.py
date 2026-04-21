@@ -3,12 +3,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# SERVICES
 from services.crypto_api import get_historical_data
 from services.risk_engine import run_risk_analysis, calculate_portfolio_risk
 from services.forecast_engine import get_forecast_summary
-
-# DB
 from db.models import add_holding, get_holdings
 
 
@@ -25,16 +22,20 @@ def load_data():
 # =========================
 def main():
 
-    # ✅ FIX: Get page from header navigation
     page = st.session_state.get("page", "📊 Dashboard")
 
-    # 🔄 Refresh button
-    col1, col2 = st.columns([8, 1])
+    # =========================
+    # REFRESH BUTTON
+    # =========================
+    col1, col2 = st.columns([8,1])
     with col2:
         if st.button("🔄 Refresh"):
             st.cache_data.clear()
             st.rerun()
 
+    # =========================
+    # LOAD DATA
+    # =========================
     with st.spinner("🚀 Loading crypto data..."):
         df = load_data()
 
@@ -47,89 +48,117 @@ def main():
     # =========================
     if page == "📊 Dashboard":
 
-        st.markdown("## 📊 Market Overview")
+        st.markdown("## 📊 Market Dashboard")
 
-        coins = st.multiselect(
-            "Select Coins",
-            sorted(df["Crypto"].unique()),
-            default=sorted(df["Crypto"].unique())
-        )
+        all_coins = sorted(df["Crypto"].unique())
 
-        f = df[df["Crypto"].isin(coins)].copy()
+        # 🔍 FILTER BAR
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            search = st.text_input("🔍 Search Coin")
+
+        with col2:
+            quick = st.selectbox("Quick Select", ["All", "Top 3", "Top 5"])
+
+        with col3:
+            compare = st.checkbox("Compare Mode")
+
+        # FILTER LOGIC
+        filtered = all_coins
+
+        if search:
+            filtered = [c for c in all_coins if search.lower() in c.lower()]
+
+        if quick == "Top 3":
+            filtered = filtered[:3]
+        elif quick == "Top 5":
+            filtered = filtered[:5]
+
+        selected = st.multiselect("Select Coins", all_coins, default=filtered)
+
+        f = df[df["Crypto"].isin(selected)].copy()
 
         if f.empty:
             st.warning("Select at least one coin")
             return
 
-        # PRICE
-        st.plotly_chart(
-            px.line(f, x="Date", y="Close", color="Crypto",
-                    title="📈 Price Trends"),
-            use_container_width=True
-        )
+        st.markdown("---")
 
-        # RETURNS
+        # ================= PRICE CHART =================
+        st.markdown("### 📈 Price Trends")
+
+        fig = go.Figure()
+        for coin in selected:
+            coin_df = f[f["Crypto"] == coin]
+            fig.add_trace(go.Scatter(
+                x=coin_df["Date"],
+                y=coin_df["Close"],
+                name=coin
+            ))
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("---")
+
+        # ================= RETURNS + VOL =================
+        col1, col2 = st.columns(2)
+
         f["Return"] = f.groupby("Crypto")["Close"].pct_change()
+        f["Vol"] = f.groupby("Crypto")["Return"].transform(lambda x: x.rolling(7).std())
 
-        st.plotly_chart(
-            px.line(f, x="Date", y="Return", color="Crypto",
-                    title="📊 Returns"),
-            use_container_width=True
-        )
+        with col1:
+            st.markdown("### 📊 Returns")
+            st.plotly_chart(
+                px.line(f, x="Date", y="Return", color="Crypto"),
+                use_container_width=True
+            )
 
-        # VOLATILITY
-        f["Volatility"] = f.groupby("Crypto")["Return"].transform(
-            lambda x: x.rolling(7).std()
-        )
+        with col2:
+            st.markdown("### ⚠ Volatility")
+            st.plotly_chart(
+                px.line(f, x="Date", y="Vol", color="Crypto"),
+                use_container_width=True
+            )
 
-        st.plotly_chart(
-            px.line(f, x="Date", y="Volatility", color="Crypto",
-                    title="⚠ Volatility"),
-            use_container_width=True
-        )
+        st.markdown("---")
 
-        # CORRELATION
+        # ================= CORRELATION =================
+        st.markdown("### 🔗 Correlation Matrix")
+
         pivot = f.pivot(index="Date", columns="Crypto", values="Close")
         corr = pivot.pct_change().corr()
 
-        st.plotly_chart(
-            px.imshow(corr, text_auto=True, title="🔗 Correlation Matrix"),
-            use_container_width=True
-        )
+        st.plotly_chart(px.imshow(corr, text_auto=True), use_container_width=True)
+
+        st.markdown("---")
+
+        # ================= METRICS =================
+        st.markdown("### 📌 Latest Prices")
+
+        latest = f.groupby("Crypto").tail(1)
+        cols = st.columns(len(latest))
+
+        for i, (_, row) in enumerate(latest.iterrows()):
+            cols[i].metric(row["Crypto"], f"${row['Close']:.2f}")
 
     # =========================
     # 💰 INVESTMENT
     # =========================
     elif page == "💰 Investment":
 
-        st.markdown("## 💰 Smart Investment Allocation")
+        st.markdown("## 💰 Investment Planner")
 
-        amount = st.number_input("Investment ($)", value=1000.0)
-        risk = st.selectbox("Risk Level", ["Low", "Medium", "High"])
+        amount = st.number_input("Investment Amount ($)", value=1000.0)
 
         returns = df.groupby("Crypto").apply(
             lambda x: (x.Close.iloc[-1] - x.Close.iloc[0]) / x.Close.iloc[0]
         ).reset_index(name="Return")
 
-        vol = df.groupby("Crypto")["Close"].std().reset_index(name="Vol")
-
-        m = returns.merge(vol, on="Crypto")
-
-        if risk == "Low":
-            m["Score"] = 1 / m["Vol"]
-        elif risk == "Medium":
-            m["Score"] = m["Return"] / m["Vol"]
-        else:
-            m["Score"] = m["Return"]
-
-        m["Allocation %"] = m["Score"] / m["Score"].sum() * 100
-        m["Investment"] = m["Allocation %"] / 100 * amount
-
-        st.dataframe(m, use_container_width=True)
+        st.dataframe(returns, use_container_width=True)
 
         st.plotly_chart(
-            px.pie(m, names="Crypto", values="Investment",
-                   title="📊 Allocation"),
+            px.pie(returns, names="Crypto", values="Return"),
             use_container_width=True
         )
 
@@ -143,26 +172,23 @@ def main():
         risk_df = run_risk_analysis(df)
         st.dataframe(risk_df, use_container_width=True)
 
-        portfolio = calculate_portfolio_risk(df)
+        r = calculate_portfolio_risk(df)
 
         col1, col2 = st.columns(2)
-        col1.metric("Risk Level", portfolio["level"])
-        col2.metric("Risk Score", portfolio["score"])
+        col1.metric("Risk Level", r["level"])
+        col2.metric("Risk Score", r["score"])
 
     # =========================
     # 🔮 FORECAST
     # =========================
     elif page == "🔮 Forecast":
 
-        st.markdown("## 🔮 Forecast")
+        st.markdown("## 🔮 Price Forecast")
 
         coin = st.selectbox("Select Coin", df["Crypto"].unique())
-        amount = st.number_input("Investment ($)", value=1000.0)
-        days = st.slider("Days", 1, 30, 7)
-
         coin_df = df[df["Crypto"] == coin]
 
-        result = get_forecast_summary(coin_df, amount, days)
+        result = get_forecast_summary(coin_df, 1000, 7)
 
         if result:
 
@@ -209,55 +235,43 @@ def main():
 
         if data:
 
-            portfolio_df = pd.DataFrame(data, columns=["Crypto", "Amount", "Date"])
-            portfolio_df["Date"] = pd.to_datetime(portfolio_df["Date"])
+            pdf = pd.DataFrame(data, columns=["Crypto", "Amount", "Date"])
+            pdf["Date"] = pd.to_datetime(pdf["Date"])
 
             results = []
-            performance = {}
+            perf = {}
 
-            for _, row in portfolio_df.iterrows():
+            for _, r in pdf.iterrows():
 
-                coin_df = df[df["Crypto"] == row["Crypto"]]
+                cdf = df[df["Crypto"] == r["Crypto"]]
 
-                buy_row = coin_df.iloc[(coin_df["Date"] - row["Date"]).abs().argsort()[:1]]
-                buy_price = buy_row["Close"].values[0]
+                buy = cdf.iloc[(cdf["Date"] - r["Date"]).abs().argsort()[:1]]["Close"].values[0]
+                curr = cdf["Close"].iloc[-1]
 
-                current_price = coin_df["Close"].iloc[-1]
-
-                units = row["Amount"] / buy_price
-                current_value = units * current_price
-                profit = current_value - row["Amount"]
-                profit_pct = (profit / row["Amount"]) * 100
+                units = r["Amount"] / buy
+                val = units * curr
+                profit = val - r["Amount"]
 
                 results.append({
-                    "Crypto": row["Crypto"],
-                    "Invested": round(row["Amount"], 2),
-                    "Buy Price": round(buy_price, 2),
-                    "Current Price": round(current_price, 2),
-                    "Current Value": round(current_value, 2),
-                    "Profit": round(profit, 2),
-                    "Profit %": round(profit_pct, 2)
+                    "Crypto": r["Crypto"],
+                    "Invested": r["Amount"],
+                    "Current Value": val,
+                    "Profit": profit
                 })
 
-                coin_df = coin_df.copy()
-                coin_df["Value"] = (coin_df["Close"] / buy_price) * row["Amount"]
+                cdf["Value"] = (cdf["Close"] / buy) * r["Amount"]
 
-                for _, r in coin_df.iterrows():
-                    performance[r["Date"]] = performance.get(r["Date"], 0) + r["Value"]
+                for i, row in cdf.iterrows():
+                    perf[row["Date"]] = perf.get(row["Date"], 0) + row["Value"]
 
-            final_df = pd.DataFrame(results)
+            st.dataframe(pd.DataFrame(results), use_container_width=True)
 
-            st.dataframe(final_df, use_container_width=True)
-
-            # 📈 PERFORMANCE CHART
-            perf_df = pd.DataFrame(list(performance.items()), columns=["Date", "Value"])
-            perf_df = perf_df.sort_values("Date")
+            perf_df = pd.DataFrame(list(perf.items()), columns=["Date", "Value"])
 
             st.markdown("### 📈 Portfolio Performance")
 
             st.plotly_chart(
-                px.line(perf_df, x="Date", y="Value",
-                        title="Portfolio Growth Over Time"),
+                px.line(perf_df.sort_values("Date"), x="Date", y="Value"),
                 use_container_width=True
             )
 
