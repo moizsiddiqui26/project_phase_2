@@ -3,40 +3,47 @@ import streamlit as st
 # =========================
 # HEADER / NAVBAR
 # =========================
-def render_header(user="Guest"):
-    col1, col2 = st.columns([8,1])
+def render_header(user):
 
-    with col1:
-        st.markdown(f"""
-        <div style="
-        position:sticky;
-        top:0;
-        z-index:999;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding:15px 25px;
-        background:rgba(0,0,0,0.85);
-        backdrop-filter:blur(12px);
-        border-bottom:1px solid rgba(255,255,255,0.1);
-        margin-bottom:10px;
-        ">
-            <div>
-                <h3 style="margin:0;color:#4cc9f0;">🚀 Crypto SaaS</h3>
-                <small style="color:gray;">AI • Risk • Analytics</small>
-            </div>
-            <div>👤 {user}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <style>
+    .header {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 999;
+        background: linear-gradient(90deg, #0f0c29, #302b63);
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+    }}
 
-    with col2:
-        if st.session_state.get("auth"):
-            if st.button("🚪", key="logout_component"):
-                st.session_state.auth = False
-                st.rerun()
+    .logo {{
+        font-size: 24px;
+        font-weight: bold;
+        color: #00f5ff;
+    }}
 
+    .user {{
+        color: white;
+        font-size: 14px;
+    }}
 
-# =========================
+    .spacer {{
+        margin-top: 90px;
+    }}
+    </style>
+
+    <div class="header">
+        <div class="logo">🚀 Crypto SaaS</div>
+        <div class="user">👤 {user}</div>
+    </div>
+
+    <div class="spacer"></div>
+    """, unsafe_allow_html=True)# =========================
 # LIVE TICKER
 # =========================
 def render_ticker(prices: dict):
