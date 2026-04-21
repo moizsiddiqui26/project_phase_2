@@ -69,13 +69,13 @@ def main():
     if page == "📊 Dashboard":
 
         st.markdown('<div class="section-title">📊 Market Overview</div>', unsafe_allow_html=True)
+        all_coins = sorted(df["Crypto"].unique())
+        default_coins = [c for c in ["BTC", "ETH", "BNB", "SOL"] if c in all_coins]
 
-        coins = st.multiselect(
-            "Select Coins",
-            sorted(df["Crypto"].unique()),
-            default=["BTC", "ETH", "BNB", "SOL"]
-        )
+        if not default_coins:
+            default_coins = all_coins[:4]
 
+        coins = st.multiselect("Select Coins",all_coins,default=default_coins)
         f = df[df["Crypto"].isin(coins)].copy()
 
         if f.empty:
