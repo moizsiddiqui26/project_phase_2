@@ -34,7 +34,7 @@ def render_ticker(prices):
     st.markdown("### 💰 Live Market Prices")
 
     if not prices:
-        st.warning("Loading prices...")
+        st.info("⚡ Updating live market...")
         return
 
     coins = list(prices.items())
