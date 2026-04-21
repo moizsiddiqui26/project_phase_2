@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -13,6 +14,35 @@ from db.models import add_holding, get_holdings
 
 
 # =========================
+# GLOBAL UI STYLE
+# =========================
+st.markdown("""
+<style>
+.section-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.card {
+    background: rgba(255,255,255,0.06);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+}
+
+.small-card {
+    background: rgba(255,255,255,0.08);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# =========================
 # LOAD DATA
 # =========================
 @st.cache_data(ttl=300)
@@ -25,15 +55,7 @@ def load_data():
 # =========================
 def main():
 
-    # ✅ FIX: Get page from header navigation
     page = st.session_state.get("page", "📊 Dashboard")
-
-    # 🔄 Refresh button
-    col1, col2 = st.columns([8, 1])
-    with col2:
-        if st.button("🔄 Refresh"):
-            st.cache_data.clear()
-            st.rerun()
 
     with st.spinner("🚀 Loading crypto data..."):
         df = load_data()
@@ -47,12 +69,12 @@ def main():
     # =========================
     if page == "📊 Dashboard":
 
-        st.markdown("## 📊 Market Overview")
+        st.markdown('<div class="section-title">📊 Market Overview</div>', unsafe_allow_html=True)
 
         coins = st.multiselect(
             "Select Coins",
             sorted(df["Crypto"].unique()),
-            default=sorted(df["Crypto"].unique())
+            default=["BTC", "ETH", "BNB", "SOL"]
         )
 
         f = df[df["Crypto"].isin(coins)].copy()
@@ -61,51 +83,76 @@ def main():
             st.warning("Select at least one coin")
             return
 
-        # PRICE
-        st.plotly_chart(
-            px.line(f, x="Date", y="Close", color="Crypto",
-                    title="📈 Price Trends"),
-            use_container_width=True
-        )
+        # 🔥 METRICS CARDS
+        latest = f.groupby("Crypto").last().reset_index()
 
-        # RETURNS
+        cols = st.columns(len(latest))
+
+        for i, row in latest.iterrows():
+            price = round(row["Close"], 2)
+            cols[i].markdown(f"""
+            <div class="small-card">
+                <div style="color:gray;">{row['Crypto']}</div>
+                <div style="font-size:20px;font-weight:bold;color:#00ffcc;">
+                    ${price}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # 📈 PRICE TREND
+        fig1 = px.line(
+            f, x="Date", y="Close", color="Crypto",
+            title="📈 Price Trends",
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig1, use_container_width=True)
+
+        # 📊 RETURNS
         f["Return"] = f.groupby("Crypto")["Close"].pct_change()
 
-        st.plotly_chart(
-            px.line(f, x="Date", y="Return", color="Crypto",
-                    title="📊 Returns"),
-            use_container_width=True
+        fig2 = px.line(
+            f, x="Date", y="Return", color="Crypto",
+            title="📊 Returns",
+            template="plotly_dark"
         )
+        st.plotly_chart(fig2, use_container_width=True)
 
-        # VOLATILITY
+        # ⚠ VOLATILITY
         f["Volatility"] = f.groupby("Crypto")["Return"].transform(
             lambda x: x.rolling(7).std()
         )
 
-        st.plotly_chart(
-            px.line(f, x="Date", y="Volatility", color="Crypto",
-                    title="⚠ Volatility"),
-            use_container_width=True
+        fig3 = px.line(
+            f, x="Date", y="Volatility", color="Crypto",
+            title="⚠ Volatility",
+            template="plotly_dark"
         )
+        st.plotly_chart(fig3, use_container_width=True)
 
-        # CORRELATION
+        # 🔗 CORRELATION
         pivot = f.pivot(index="Date", columns="Crypto", values="Close")
         corr = pivot.pct_change().corr()
 
-        st.plotly_chart(
-            px.imshow(corr, text_auto=True, title="🔗 Correlation Matrix"),
-            use_container_width=True
+        fig4 = px.imshow(
+            corr,
+            text_auto=True,
+            title="🔗 Correlation Matrix",
+            template="plotly_dark"
         )
+        st.plotly_chart(fig4, use_container_width=True)
 
     # =========================
     # 💰 INVESTMENT
     # =========================
     elif page == "💰 Investment":
 
-        st.markdown("## 💰 Smart Investment Allocation")
+        st.markdown('<div class="section-title">💰 Smart Investment</div>', unsafe_allow_html=True)
 
-        amount = st.number_input("Investment ($)", value=1000.0)
-        risk = st.selectbox("Risk Level", ["Low", "Medium", "High"])
+        col1, col2 = st.columns(2)
+        amount = col1.number_input("Investment ($)", value=1000.0)
+        risk = col2.selectbox("Risk Level", ["Low", "Medium", "High"])
 
         returns = df.groupby("Crypto").apply(
             lambda x: (x.Close.iloc[-1] - x.Close.iloc[0]) / x.Close.iloc[0]
@@ -127,18 +174,21 @@ def main():
 
         st.dataframe(m, use_container_width=True)
 
-        st.plotly_chart(
-            px.pie(m, names="Crypto", values="Investment",
-                   title="📊 Allocation"),
-            use_container_width=True
+        fig = px.pie(
+            m,
+            names="Crypto",
+            values="Investment",
+            title="📊 Portfolio Allocation",
+            template="plotly_dark"
         )
+        st.plotly_chart(fig, use_container_width=True)
 
     # =========================
     # ⚠ RISK
     # =========================
     elif page == "⚠ Risk":
 
-        st.markdown("## ⚠ Risk Analysis")
+        st.markdown('<div class="section-title">⚠ Risk Analysis</div>', unsafe_allow_html=True)
 
         risk_df = run_risk_analysis(df)
         st.dataframe(risk_df, use_container_width=True)
@@ -146,15 +196,27 @@ def main():
         portfolio = calculate_portfolio_risk(df)
 
         col1, col2 = st.columns(2)
-        col1.metric("Risk Level", portfolio["level"])
-        col2.metric("Risk Score", portfolio["score"])
+
+        col1.markdown(f"""
+        <div class="card">
+            <h4>Risk Level</h4>
+            <h2 style="color:#ff4b4b;">{portfolio['level']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col2.markdown(f"""
+        <div class="card">
+            <h4>Risk Score</h4>
+            <h2 style="color:#00ffcc;">{portfolio['score']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
 
     # =========================
     # 🔮 FORECAST
     # =========================
     elif page == "🔮 Forecast":
 
-        st.markdown("## 🔮 Forecast")
+        st.markdown('<div class="section-title">🔮 Forecast</div>', unsafe_allow_html=True)
 
         coin = st.selectbox("Select Coin", df["Crypto"].unique())
         amount = st.number_input("Investment ($)", value=1000.0)
@@ -186,6 +248,8 @@ def main():
                 name="Forecast"
             ))
 
+            fig.update_layout(template="plotly_dark")
+
             st.plotly_chart(fig, use_container_width=True)
 
     # =========================
@@ -193,17 +257,19 @@ def main():
     # =========================
     elif page == "👤 Portfolio":
 
-        st.markdown("## 👤 Portfolio Manager")
+        st.markdown('<div class="section-title">👤 Portfolio Manager</div>', unsafe_allow_html=True)
 
         email = st.session_state.get("email")
 
-        coin = st.selectbox("Crypto", df["Crypto"].unique())
-        amount = st.number_input("Investment Amount ($)", min_value=0.0)
-        date = st.date_input("Purchase Date")
+        col1, col2, col3 = st.columns(3)
 
-        if st.button("Add Investment"):
+        coin = col1.selectbox("Crypto", df["Crypto"].unique())
+        amount = col2.number_input("Amount ($)", min_value=0.0)
+        date = col3.date_input("Date")
+
+        if st.button("➕ Add Investment"):
             add_holding(email, coin, amount, str(date))
-            st.success("✅ Added successfully")
+            st.success("Investment added")
 
         data = get_holdings(email)
 
@@ -221,7 +287,6 @@ def main():
 
                 buy_row = coin_df.iloc[(coin_df["Date"] - row["Date"]).abs().argsort()[:1]]
                 buy_price = buy_row["Close"].values[0]
-
                 current_price = coin_df["Close"].iloc[-1]
 
                 units = row["Amount"] / buy_price
@@ -232,8 +297,6 @@ def main():
                 results.append({
                     "Crypto": row["Crypto"],
                     "Invested": round(row["Amount"], 2),
-                    "Buy Price": round(buy_price, 2),
-                    "Current Price": round(current_price, 2),
                     "Current Value": round(current_value, 2),
                     "Profit": round(profit, 2),
                     "Profit %": round(profit_pct, 2)
@@ -249,17 +312,19 @@ def main():
 
             st.dataframe(final_df, use_container_width=True)
 
-            # 📈 PERFORMANCE CHART
             perf_df = pd.DataFrame(list(performance.items()), columns=["Date", "Value"])
             perf_df = perf_df.sort_values("Date")
 
-            st.markdown("### 📈 Portfolio Performance")
-
-            st.plotly_chart(
-                px.line(perf_df, x="Date", y="Value",
-                        title="Portfolio Growth Over Time"),
-                use_container_width=True
+            fig = px.line(
+                perf_df,
+                x="Date",
+                y="Value",
+                title="📈 Portfolio Growth",
+                template="plotly_dark"
             )
+
+            st.plotly_chart(fig, use_container_width=True)
 
         else:
             st.info("No investments yet")
+```
