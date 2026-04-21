@@ -11,8 +11,6 @@ from services.forecast_engine import get_forecast_summary
 # DB
 from db.models import add_holding, get_holdings
 
-# UI
-from ui.components import top_nav
 
 
 # =========================
@@ -28,7 +26,6 @@ def load_data():
 # =========================
 def main():
 
-    page = top_nav()
 
     # Refresh button
     col1, col2 = st.columns([8,1])
