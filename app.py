@@ -35,7 +35,6 @@ init_db = db_module.init_db
 render_header = ui_components.render_header
 render_ticker = ui_components.render_ticker
 
-AUTO_REFRESH_INTERVAL = config_module.AUTO_REFRESH_INTERVAL
 
 # =========================
 # NORMAL IMPORTS
@@ -91,15 +90,6 @@ if "otp" not in st.session_state:
 if "temp_email" not in st.session_state:
     st.session_state.temp_email = None
 
-# =========================
-# AUTO REFRESH
-# =========================
-if "last_refresh" not in st.session_state:
-    st.session_state.last_refresh = time.time()
-
-if time.time() - st.session_state.last_refresh > AUTO_REFRESH_INTERVAL:
-    st.session_state.last_refresh = time.time()
-    st.rerun()
 
 # =========================
 # HEADER + TICKER
