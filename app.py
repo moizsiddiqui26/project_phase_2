@@ -1,7 +1,26 @@
 import streamlit as st
 import os, importlib.util
 import time
+st.markdown("""
+<style>
 
+/* Hide Streamlit Header */
+header {visibility: hidden;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Remove top padding (important) */
+.block-container {
+    padding-top: 0rem !important;
+}
+
+/* Remove extra gap */
+div[data-testid="stAppViewContainer"] {
+    padding-top: 0rem;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # =========================
 # MODULE LOADER
 # =========================
