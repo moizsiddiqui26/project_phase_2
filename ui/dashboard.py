@@ -103,6 +103,64 @@ def render_dashboard(df):
     st.markdown("<br>", unsafe_allow_html=True)
 
     # =========================
+    # PREP DATA
+    # =========================
+    f["Return"] = f.groupby("Crypto")["Close"].pct_change()
+
+    pivot = f.pivot(index="Date", columns="Crypto", values="Close")
+    corr = pivot.pct_change().corr()
+
+    # =========================
+    # GRID LAYOUT (2 x 2)
+    # =========================
+    row1_col1, row1_col2 = st.columns(2)
+    row2_col1, row2_col2 = st.columns(2)
+
+    # -------------------------
+    # 📈 PRICE TREND
+    # -------------------------
+    with row1_col1:
+        fig1 = px.line(f, x="Date", y="Close", color="Crypto", template="plotly_dark")
+        st.plotly_chart(fig1, use_container_width=True)
+
+        st.caption("📈 Price movement over time — helps identify trends.")
+
+    # -------------------------
+    # 📉 RETURNS
+    # -------------------------
+    with row1_col2:
+        fig2 = px.line(f, x="Date", y="Return", color="Crypto", template="plotly_dark")
+        st.plotly_chart(fig2, use_container_width=True)
+
+        st.caption("📉 Daily returns — shows volatility and risk spikes.")
+
+    # -------------------------
+    # 🔥 CORRELATION
+    # -------------------------
+    with row2_col1:
+        fig3 = px.imshow(corr, text_auto=True, template="plotly_dark")
+        st.plotly_chart(fig3, use_container_width=True)
+
+        st.caption("🔥 Correlation between coins — useful for diversification.")
+
+    # -------------------------
+    # 📊 DISTRIBUTION
+    # -------------------------
+    with row2_col2:
+        fig4 = px.histogram(
+            f,
+            x="Return",
+            color="Crypto",
+            nbins=50,
+            template="plotly_dark",
+            opacity=0.6
+        )
+
+        st.plotly_chart(fig4, use_container_width=True)
+
+        st.caption("📊 Return distribution — wide spread = high risk.")
+
+    # =========================
     # 📈 PRICE TREND
     # =========================
     col1, col2 = st.columns(2)
