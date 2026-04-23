@@ -121,7 +121,8 @@ def render_dashboard(df):
     # -------------------------
     with row1_col1:
         fig1 = px.line(f, x="Date", y="Close", color="Crypto", template="plotly_dark")
-        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True, key="price_chart")
+
 
         st.caption("📈 Price movement over time — helps identify trends.")
 
@@ -130,7 +131,7 @@ def render_dashboard(df):
     # -------------------------
     with row1_col2:
         fig2 = px.line(f, x="Date", y="Return", color="Crypto", template="plotly_dark")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True, key="returns_chart")
 
         st.caption("📉 Daily returns — shows volatility and risk spikes.")
 
@@ -139,7 +140,8 @@ def render_dashboard(df):
     # -------------------------
     with row2_col1:
         fig3 = px.imshow(corr, text_auto=True, template="plotly_dark")
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, use_container_width=True, key="corr_chart")
+
 
         st.caption("🔥 Correlation between coins — useful for diversification.")
 
@@ -156,7 +158,7 @@ def render_dashboard(df):
             opacity=0.6
         )
 
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(fig4, use_container_width=True, key="dist_chart")
 
         st.caption("📊 Return distribution — wide spread = high risk.")
 
