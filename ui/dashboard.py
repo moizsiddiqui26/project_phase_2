@@ -337,3 +337,33 @@ def render_portfolio(df):
     col1.metric("Total Invested", f"${total_invested:.2f}")
     col2.metric("Current Value", f"${total_value:.2f}")
     col3.metric("Profit", f"${total_profit:.2f} ({profit_pct:.2f}%)")
+    st.markdown("### 📊 Portfolio Insights")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        fig1 = px.pie(
+        portfolio_df,
+        names="Crypto",
+        values="Current Value",
+        title="Investment Allocation",
+        template="plotly_dark"
+        )
+        st.plotly_chart(fig1, use_container_width=True, key="portfolio_pie")
+
+        st.caption("💰 Shows how your investment is distributed across coins.")
+
+    with col2:
+        fig2 = px.bar(
+            portfolio_df,
+            x="Crypto",
+            y="Profit ($)",
+            color="Profit ($)",
+            color_continuous_scale=["red", "green"],
+            title="Profit / Loss by Coin",
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig2, use_container_width=True, key="portfolio_profit")
+
+        st.caption("📈 Shows which coins are making profit or loss.")
+
