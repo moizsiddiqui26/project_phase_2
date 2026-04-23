@@ -1,26 +1,8 @@
+```python
 import streamlit as st
 import os, importlib.util
 import time
-st.markdown("""
-<style>
 
-/* Hide Streamlit Header */
-header {visibility: hidden;}
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-
-/* Remove top padding (important) */
-.block-container {
-    padding-top: 0rem !important;
-}
-
-/* Remove extra gap */
-div[data-testid="stAppViewContainer"] {
-    padding-top: 0rem;
-}
-
-</style>
-""", unsafe_allow_html=True)
 # =========================
 # MODULE LOADER
 # =========================
@@ -179,20 +161,32 @@ def login_ui():
 # MAIN APP
 # =========================
 def main_app():
+
     render_header(st.session_state.email)
 
-    prices = get_cached_prices()
+    now = time.time()
+
+    if now - st.session_state.last_update > 2:
+        st.session_state.prices = get_cached_prices()
+        st.session_state.last_update = now
+
+    prices = st.session_state.prices
 
     if prices:
         render_ticker(prices)
     else:
         st.info("⚡ Fetching live prices...")
 
-    # ✅ ONLY THIS
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+
+    dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
 
-    # 🔥 IMPORTANT (STOP EXECUTION)
-    st.stop()
+    # 🔄 AUTO REFRESH
+    time.sleep(2)
+    st.rerun()
+
+
 # =========================
 # ROUTING
 # =========================
@@ -201,3 +195,4 @@ if not st.session_state.auth:
 else:
     st.empty()  # 🔥 CLEAR OLD UI
     main_app()
+```
