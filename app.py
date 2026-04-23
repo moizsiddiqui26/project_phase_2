@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import os, importlib.util
 import time
@@ -20,16 +21,13 @@ def load_module(name, path):
 auth = load_module("auth", os.path.join(BASE_DIR, "auth", "auth_service.py"))
 ui = load_module("ui", os.path.join(BASE_DIR, "ui", "components.py"))
 live = load_module("live", os.path.join(BASE_DIR, "services", "live_prices.py"))
-db = load_module("db", os.path.join(BASE_DIR, "db", "database.py"))  # ✅ NEW
+db = load_module("db", os.path.join(BASE_DIR, "db", "database.py"))
 
 # =========================
-# INIT DATABASE (CRITICAL)
+# INIT DB (CRITICAL)
 # =========================
-db.init_db()   # ✅ THIS FIXES YOUR ERROR
+db.init_db()
 
-# =========================
-# FUNCTIONS
-# =========================
 login_user = auth.login_user
 register_user = auth.register_user
 
@@ -40,14 +38,10 @@ get_live_prices = live.get_live_prices
 
 
 # =========================
-# PAGE CONFIG
+# CONFIG
 # =========================
 st.set_page_config(page_title="🚀 Crypto SaaS", layout="wide")
 
-
-# =========================
-# PREMIUM GLOBAL UI
-# =========================
 st.markdown("""
 <style>
 .stApp {
@@ -62,9 +56,6 @@ st.markdown("""
     color: black;
     font-weight: bold;
     border-radius: 10px;
-}
-input {
-    border-radius: 10px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -87,7 +78,7 @@ if "prices" not in st.session_state:
 
 
 # =========================
-# FAST PRICE FETCH
+# PRICE CACHE
 # =========================
 @st.cache_data(ttl=2)
 def get_cached_prices():
@@ -95,9 +86,13 @@ def get_cached_prices():
 
 
 # =========================
-# LOGIN UI
+# LOGIN + REGISTER UI
 # =========================
 def login_ui():
+
+    # 🔥 STOP rendering if already logged in
+    if st.session_state.auth:
+        return
 
     st.markdown("""
     <div style="text-align:center; padding:50px;">
@@ -120,16 +115,20 @@ def login_ui():
 
             if st.button("🚀 Login", use_container_width=True):
                 res = login_user(email, password)
+
                 if res["success"]:
                     st.session_state.auth = True
                     st.session_state.email = email
+                    st.success("Login successful 🚀")
+
+                    time.sleep(1)
                     st.rerun()
                 else:
                     st.error(res["msg"])
 
             if st.button("📝 Register", use_container_width=True):
                 st.session_state.mode = "register"
-                st.rerun()   # ✅ IMPORTANT
+                st.rerun()
 
         # ================= REGISTER =================
         elif st.session_state.mode == "register":
@@ -145,16 +144,19 @@ def login_ui():
 
                 if res["success"]:
                     st.success("Account created successfully 🎉")
+
+                    # 🔥 GO BACK TO LOGIN (NO AUTO DASHBOARD)
+                    time.sleep(1)
                     st.session_state.mode = "login"
                     st.rerun()
-                   
-                    
                 else:
                     st.error(res["msg"])
 
             if st.button("⬅ Back to Login"):
                 st.session_state.mode = "login"
                 st.rerun()
+
+
 # =========================
 # MAIN APP
 # =========================
@@ -180,6 +182,7 @@ def main_app():
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
 
+    # 🔄 AUTO REFRESH
     time.sleep(2)
     st.rerun()
 
@@ -190,4 +193,6 @@ def main_app():
 if not st.session_state.auth:
     login_ui()
 else:
+    st.empty()  # 🔥 CLEAR OLD UI
     main_app()
+```
