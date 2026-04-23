@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -225,4 +224,4 @@ def main():
         portfolio_df["Date"] = pd.to_datetime(portfolio_df["Date"])
 
         st.dataframe(portfolio_df, use_container_width=True)
-```
+
