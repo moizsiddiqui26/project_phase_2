@@ -97,6 +97,7 @@ def get_cached_prices():
 # =========================
 # LOGIN UI
 # =========================
+```python
 def login_ui():
 
     st.markdown("""
@@ -109,22 +110,54 @@ def login_ui():
     col1, col2, col3 = st.columns([2,4,2])
 
     with col2:
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
 
-        if st.button("🚀 Login", use_container_width=True):
-            res = login_user(email, password)
-            if res["success"]:
-                st.session_state.auth = True
-                st.session_state.email = email
+        # ================= LOGIN =================
+        if st.session_state.mode == "login":
+
+            st.markdown("### 🔐 Login")
+
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+
+            if st.button("🚀 Login", use_container_width=True):
+                res = login_user(email, password)
+                if res["success"]:
+                    st.session_state.auth = True
+                    st.session_state.email = email
+                    st.rerun()
+                else:
+                    st.error(res["msg"])
+
+            if st.button("📝 Register", use_container_width=True):
+                st.session_state.mode = "register"
+                st.rerun()   # ✅ IMPORTANT
+
+        # ================= REGISTER =================
+        elif st.session_state.mode == "register":
+
+            st.markdown("### 📝 Create Account")
+
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+
+            if st.button("✅ Create Account", use_container_width=True):
+                res = register_user(name, email, password)
+
+                if res["success"]:
+                    st.success("Account created successfully 🎉")
+
+                    # ✅ Auto login
+                    st.session_state.auth = True
+                    st.session_state.email = email
+                    st.rerun()
+                else:
+                    st.error(res["msg"])
+
+            if st.button("⬅ Back to Login"):
+                st.session_state.mode = "login"
                 st.rerun()
-            else:
-                st.error(res["msg"])
-
-        if st.button("📝 Register", use_container_width=True):
-            st.session_state.mode = "register"
-
-
+```
 # =========================
 # MAIN APP
 # =========================
