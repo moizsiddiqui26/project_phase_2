@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import os, importlib.util
 import time
@@ -20,7 +21,16 @@ def load_module(name, path):
 auth = load_module("auth", os.path.join(BASE_DIR, "auth", "auth_service.py"))
 ui = load_module("ui", os.path.join(BASE_DIR, "ui", "components.py"))
 live = load_module("live", os.path.join(BASE_DIR, "services", "live_prices.py"))
+db = load_module("db", os.path.join(BASE_DIR, "db", "database.py"))  # ✅ NEW
 
+# =========================
+# INIT DATABASE (CRITICAL)
+# =========================
+db.init_db()   # ✅ THIS FIXES YOUR ERROR
+
+# =========================
+# FUNCTIONS
+# =========================
 login_user = auth.login_user
 register_user = auth.register_user
 
@@ -35,61 +45,28 @@ get_live_prices = live.get_live_prices
 # =========================
 st.set_page_config(page_title="🚀 Crypto SaaS", layout="wide")
 
+
 # =========================
 # PREMIUM GLOBAL UI
 # =========================
 st.markdown("""
 <style>
-
-/* Background */
 .stApp {
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     color: white;
 }
-
-/* Remove default padding */
 .block-container {
     padding-top: 1rem;
-    padding-bottom: 1rem;
 }
-
-/* Buttons */
 .stButton>button {
     background: linear-gradient(90deg, #00f5ff, #00ffcc);
     color: black;
     font-weight: bold;
     border-radius: 10px;
 }
-
-/* Inputs */
 input {
     border-radius: 10px !important;
 }
-
-/* Section Titles */
-.section-title {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-/* Glass Card */
-.glass-card {
-    background: rgba(255,255,255,0.06);
-    padding: 20px;
-    border-radius: 18px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0px 6px 25px rgba(0,0,0,0.4);
-}
-
-/* KPI */
-.kpi {
-    background: linear-gradient(135deg, #1f1c2c, #302b63);
-    padding: 18px;
-    border-radius: 14px;
-    text-align: center;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -156,9 +133,6 @@ def main_app():
 
     render_header(st.session_state.email)
 
-    # =========================
-    # LIVE PRICES UPDATE
-    # =========================
     now = time.time()
 
     if now - st.session_state.last_update > 2:
@@ -167,9 +141,6 @@ def main_app():
 
     prices = st.session_state.prices
 
-    # =========================
-    # TICKER
-    # =========================
     if prices:
         render_ticker(prices)
     else:
@@ -177,15 +148,9 @@ def main_app():
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
-    # =========================
-    # DASHBOARD LOAD
-    # =========================
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
 
-    # =========================
-    # AUTO REFRESH (SAFE)
-    # =========================
     time.sleep(2)
     st.rerun()
 
@@ -197,3 +162,4 @@ if not st.session_state.auth:
     login_ui()
 else:
     main_app()
+```
