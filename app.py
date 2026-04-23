@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import os, importlib.util
 import time
@@ -195,4 +194,3 @@ if not st.session_state.auth:
 else:
     st.empty()  # 🔥 CLEAR OLD UI
     main_app()
-```
