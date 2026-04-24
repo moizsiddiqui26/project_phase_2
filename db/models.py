@@ -131,7 +131,14 @@ def get_total_investment(email):
 
     return total if total else 0
 
-
+def get_all_active_alerts():
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT id, email, coin, condition, target_price
+        FROM alerts WHERE active = 1
+    """).fetchall()
+    conn.close()
+    return rows
 def get_crypto_distribution(email):
     conn = get_connection()
     cur = conn.cursor()
