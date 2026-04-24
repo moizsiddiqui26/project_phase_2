@@ -32,7 +32,16 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
-
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT,
+        coin TEXT,
+        condition TEXT,        -- 'above' or 'below'
+        target_price REAL,
+        active INTEGER DEFAULT 1
+    )
+    """)
     # HOLDINGS TABLE
     cur.execute("""
     CREATE TABLE IF NOT EXISTS holdings (
