@@ -201,10 +201,6 @@ def main_app():
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
 
-    # 🔄 AUTO REFRESH
-    time.sleep(2)
-    st.rerun()
-
 
 # =========================
 # ROUTING
