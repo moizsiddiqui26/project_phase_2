@@ -53,9 +53,7 @@ def main():
 
     elif page == "👤 Portfolio":
         render_portfolio(df)
-    
-    elif page == "🔔 Alerts":
-        render_alerts(df)
+
 
 
 # ============================================================
@@ -366,33 +364,3 @@ def render_portfolio(df):
         st.plotly_chart(fig2, use_container_width=True, key="portfolio_profit")
 
         st.caption("📈 Shows which coins are making profit or loss.")
-    
-    def render_alerts(df):
-        from db.models import create_alert, get_alerts, deactivate_alert
-        st.markdown('<div class="section-title">🔔 Price Alerts</div>', unsafe_allow_html=True)
-        email = st.session_state.get("email")
-        col1, col2, col3, col4 = st.columns(4)
-        coin      = col1.selectbox("Coin", df["Crypto"].unique(), key="alert_coin")
-        condition = col2.selectbox("Condition", ["above", "below"])
-        price     = col3.number_input("Target Price ($)", min_value=0.0)
-
-        col4.markdown("<br>", unsafe_allow_html=True)
-        if col4.button("➕ Add Alert"):
-            create_alert(email, coin, condition, price)
-            st.success(f"Alert set! Email when {coin} goes {condition} ${price}")
-        st.markdown("### Your Active Alerts")
-        alerts = get_alerts(email)
-
-        if not alerts:
-            st.info("No active alerts yet.")
-            return
-
-        for alert_id, coin, condition, target, active in alerts:
-            c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
-            c1.write(coin)
-            c2.write(condition)
-            c3.write(f"${target:.2f}")
-            c4.write("🟢 Active" if active else "⚫ Triggered")
-            if active and c5.button("🗑", key=f"del_{alert_id}"):
-                deactivate_alert(alert_id)
-                st.rerun()
