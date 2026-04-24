@@ -188,6 +188,9 @@ def main_app():
     if now - st.session_state.last_update > 2:
         st.session_state.prices = get_cached_prices()
         st.session_state.last_update = now
+    # 🔔 CHECK ALERTS ON EVERY REFRESH
+        if st.session_state.prices:
+            check_alerts(st.session_state.prices)
 
     prices = st.session_state.prices
 
@@ -200,7 +203,7 @@ def main_app():
 
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
-
+    
     # 🔄 AUTO REFRESH
     time.sleep(2)
     st.rerun()
