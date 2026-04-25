@@ -317,6 +317,16 @@ def render_portfolio(df):
     # =========================
     # 💎 DISPLAY
     # =========================
+    # 🔥 Sort by Current Value (best metric)
+    top5_df = portfolio_df.sort_values(
+        "Current Value", ascending=False
+        ).head(5)
+
+    st.markdown("### 💎 Top 5 Holdings")
+    st.dataframe(top5_df, use_container_width=True)
+
+    # Optional: show full portfolio
+    if st.checkbox("Show Full Portfolio"):
     st.dataframe(portfolio_df, use_container_width=True)
 
     # =========================
