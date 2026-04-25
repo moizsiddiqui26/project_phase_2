@@ -4,19 +4,29 @@ import time
 st.markdown("""
 <style>
 
-/* REMOVE EXTRA TOP SPACE */
+/* FULL RESET */
+html, body, [class*="css"]  {
+    margin: 0;
+    padding: 0;
+}
+
+/* REMOVE STREAMLIT TOP SPACE */
+.block-container {
+    padding-top: 0rem !important;
+}
+
+/* REMOVE EXTRA WRAPPER GAP */
 div[data-testid="stAppViewContainer"] {
     padding-top: 0rem !important;
 }
 
-/* FIX HEADER GAP */
-.block-container {
-    padding-top: 0.5rem !important;
+/* REMOVE HEADER GAP */
+section.main > div {
+    padding-top: 0rem !important;
 }
 
 </style>
-""", unsafe_allow_html=True)
-# =========================
+""", unsafe_allow_html=True)# =========================
 # MODULE LOADER
 # =========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
