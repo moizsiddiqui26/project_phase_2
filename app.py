@@ -4,40 +4,27 @@ import time
 st.markdown("""
 <style>
 
-/* 🔥 REMOVE STREAMLIT TOP BAR COMPLETELY */
+/* Hide Streamlit Header */
 header {visibility: hidden;}
-footer {visibility: hidden;}
 #MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 
-/* REMOVE BLACK STRIP (TOP TOOLBAR CONTAINER) */
-div[data-testid="stToolbar"] {
-    display: none !important;
-}
-
-/* REMOVE TOP SPACE COMPLETELY */
-div[data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
-}
-
+/* Remove top padding (important) */
 .block-container {
     padding-top: 0rem !important;
 }
 
-/* REMOVE ANY EXTRA WRAPPER SPACE */
-section.main > div {
-    padding-top: 0rem !important;
-}
-
-/* BACKGROUND */
-.stApp {
-    background: linear-gradient(135deg, #0f0c29, #1a1840, #24243e);
-    color: #eaeaf0;
+/* Remove extra gap */
+div[data-testid="stAppViewContainer"] {
+    padding-top: 0rem;
 }
 
 </style>
 """, unsafe_allow_html=True)
-# MODULE LOADER
 
+# =========================
+# MODULE LOADER
+# =========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_module(name, path):
@@ -128,7 +115,7 @@ def login_ui():
 
     st.markdown("""
     <div style="text-align:center; padding:50px;">
-        <h1 style="color:#00f5ff;">🚀 CRYTPTOPORT</h1>
+        <h1 style="color:#00f5ff;">🚀 CRYPTOPORT</h1>
         <p style="color:gray;">Smart Crypto Dashboard</p>
     </div>
     """, unsafe_allow_html=True)
@@ -151,9 +138,8 @@ def login_ui():
                 if res["success"]:
                     st.session_state.auth = True
                     st.session_state.email = email
-                    # ✅ Send login email
-                    send_login_email(email)
                     st.success("Login successful 🚀")
+
                     time.sleep(1)
                     st.rerun()
                 else:
@@ -214,6 +200,10 @@ def main_app():
 
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
+
+    # 🔄 AUTO REFRESH
+    time.sleep(2)
+    st.rerun()
 
 
 # =========================
