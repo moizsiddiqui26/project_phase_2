@@ -237,8 +237,9 @@ def main_app():
 
     dashboard = load_module("dashboard", os.path.join(BASE_DIR, "ui", "dashboard.py"))
     dashboard.main()
-
-
+    from services.alert_engine import check_alerts
+    if prices:
+        check_alerts(prices)
 # =========================
 # ROUTING
 # =========================
