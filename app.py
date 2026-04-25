@@ -36,7 +36,6 @@ section.main > div {
 
 </style>
 """, unsafe_allow_html=True)
-from services.email_service import send_login_email
 # MODULE LOADER
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
