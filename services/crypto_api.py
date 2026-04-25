@@ -9,7 +9,6 @@ from functools import lru_cache
 TOP_10_COINS = {
     "BTC": "bitcoin",
     "ETH": "ethereum",
-    "USDT": "tether",
     "BNB": "binancecoin",
     "XRP": "ripple",
     "SOL": "solana",
