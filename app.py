@@ -72,7 +72,7 @@ get_live_prices = live.get_live_prices
 # =========================
 # CONFIG
 # =========================
-st.set_page_config(page_title="🚀 Crypto SaaS", layout="wide")
+st.set_page_config(page_title="🚀 CRYPTOPORT", layout="wide")
 
 st.markdown("""
 <style>
