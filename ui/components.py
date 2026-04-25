@@ -7,14 +7,16 @@ def render_header(user):
 
     /* HEADER */
     .header {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: rgba(15,12,41,0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        padding: 12px 18px;
-    }
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,12,41,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+}
 
     /* NAV */
     div[role="radiogroup"] > label {
