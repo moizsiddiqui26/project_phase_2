@@ -7,7 +7,7 @@ from services.crypto_api import get_historical_data
 from services.risk_engine import run_risk_analysis, calculate_portfolio_risk
 from services.forecast_engine import get_forecast_summary
 from db.models import add_holding, get_holdings
-
+from services.email_service import send_portfolio_summary_email
 
 # =========================
 # LOAD DATA
@@ -364,5 +364,6 @@ def render_portfolio(df):
 
         st.caption("📈 Shows which coins are making profit or loss.")
 
-from services.chatbot import get_chatbot_response
-
+    if st.button("📧 Send Portfolio Summary Email"):
+        send_portfolio_summary_email(email, portfolio_df)
+        st.success("Portfolio summary sent to your email!")
