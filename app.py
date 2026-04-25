@@ -4,31 +4,24 @@ import time
 st.markdown("""
 <style>
 
-/* FULL RESET */
-html, body, [class*="css"]  {
-    margin: 0;
-    padding: 0;
-}
+header {visibility: hidden;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 
-/* REMOVE STREAMLIT TOP SPACE */
+/* Remove top padding (important) */
 .block-container {
     padding-top: 0rem !important;
 }
 
-/* REMOVE EXTRA WRAPPER GAP */
+/* Remove extra gap */
 div[data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
-}
-
-/* REMOVE HEADER GAP */
-section.main > div {
-    padding-top: 0rem !important;
+    padding-top: 0rem;
 }
 
 </style>
-""", unsafe_allow_html=True)# =========================
+""", unsafe_allow_html=True)
 # MODULE LOADER
-# =========================
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_module(name, path):
