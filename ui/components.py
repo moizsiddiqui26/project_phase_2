@@ -40,7 +40,7 @@ def render_header(user):
     col1, col2, col3 = st.columns([2,6,2])
 
     with col1:
-        st.markdown("### 🚀 Crypto SaaS")
+        st.markdown("### 🚀 CRYPTOPORT")
 
     with col2:
         nav = st.radio(
