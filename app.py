@@ -4,38 +4,14 @@ import time
 st.markdown("""
 <style>
 
-/* Hide Streamlit default UI */
-header {visibility: hidden;}
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-
-/* BACKGROUND (IMPROVED) */
-.stApp {
-    background: linear-gradient(135deg, #0f0c29, #1a1840, #24243e);
-    color: #eaeaf0;
+/* REMOVE EXTRA TOP SPACE */
+div[data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
 }
 
-/* Reduce top gap */
+/* FIX HEADER GAP */
 .block-container {
-    padding-top: 0.8rem;
-}
-
-/* BUTTON STYLE */
-.stButton>button {
-    background: linear-gradient(90deg, #00f5ff, #00ffcc);
-    color: black;
-    font-weight: bold;
-    border-radius: 10px;
-}
-
-/* GLASS CARD (Reusable) */
-.glass-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-    padding: 20px;
+    padding-top: 0.5rem !important;
 }
 
 </style>
