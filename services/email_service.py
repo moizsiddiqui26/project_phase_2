@@ -177,3 +177,67 @@ def send_risk_alert_email(to_email: str, risk_data):
     """
 
     return send_email(to_email, subject, html)
+def send_portfolio_summary_email(to_email: str, portfolio_df):
+
+    subject = "📊 Your Crypto Portfolio Summary"
+
+    if portfolio_df.empty:
+        html = """
+        <html><body style="background:#0f0c29;color:white;padding:20px;">
+        <h2>No portfolio data available</h2>
+        </body></html>
+        """
+        return send_email(to_email, subject, html)
+
+    total_invested = portfolio_df["Amount"].sum()
+    total_value = portfolio_df["Current Value"].sum()
+    total_profit = total_value - total_invested
+    profit_pct = (total_profit / total_invested) * 100 if total_invested > 0 else 0
+
+    rows = ""
+
+    for _, row in portfolio_df.iterrows():
+        color = "green" if row["Profit ($)"] >= 0 else "red"
+
+        rows += f"""
+        <tr>
+            <td>{row['Crypto']}</td>
+            <td>${row['Amount']}</td>
+            <td>${row['Current Value']:.2f}</td>
+            <td style="color:{color};">${row['Profit ($)']:.2f}</td>
+        </tr>
+        """
+
+    html = f"""
+    <html>
+    <body style="font-family:Arial;background:#0f0c29;color:white;padding:20px;">
+
+        <h2 style="color:#00ffcc;">📊 Portfolio Summary</h2>
+
+        <div style="background:#302b63;padding:15px;border-radius:10px;">
+            <p><b>Total Invested:</b> ${total_invested:.2f}</p>
+            <p><b>Current Value:</b> ${total_value:.2f}</p>
+            <p><b>Profit:</b> ${total_profit:.2f} ({profit_pct:.2f}%)</p>
+        </div>
+
+        <h3 style="margin-top:20px;">💼 Holdings</h3>
+
+        <table style="width:100%;border-collapse:collapse;">
+            <tr style="background:#302b63;">
+                <th style="padding:10px;">Crypto</th>
+                <th>Invested</th>
+                <th>Current Value</th>
+                <th>Profit</th>
+            </tr>
+            {rows}
+        </table>
+
+        <p style="margin-top:20px;">
+        🚀 Keep tracking your investments and stay ahead!
+        </p>
+
+    </body>
+    </html>
+    """
+
+    return send_email(to_email, subject, html)
